@@ -2,14 +2,12 @@ package com.example.menuannam
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
-import androidx.room.Database
 import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
-import androidx.room.RoomDatabase
 
 @Entity(tableName = "FlashCards", indices = [Index(
     value = ["english_card", "vietnamese_card"],

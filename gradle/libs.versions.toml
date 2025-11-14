@@ -1,6 +1,6 @@
 [versions]
 
-agp = "8.13.0"
+agp = "8.13.1"
 
 composeVersion = "1.9.4"
 
@@ -18,15 +18,15 @@ lifecycleRuntimeKtx = "2.9.4"
 
 activityCompose = "1.11.0"
 
-composeBom = "2025.10.01"
+composeBom = "2025.11.00"
 
-navigationCompose = "2.9.5"
+navigationCompose = "2.9.6"
 
 material3 = "1.4.0"
 
-navigationRuntimeKtx = "2.9.5"
+navigationRuntimeKtx = "2.9.6"
 
-navigationTesting = "2.9.5"
+navigationTesting = "2.9.6"
 
 robolectric = "4.16"
 
@@ -35,6 +35,8 @@ roomVersion = "2.8.3"
 coreKtxVersion = "1.7.0"
 
 ui = "1.9.4"
+
+foundation = "1.9.4"
 
 
 
@@ -80,6 +82,7 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 core-ktx = { group = "androidx.test", name = "core-ktx", version.ref = "coreKtxVersion" }
 
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "ui" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 
 
 

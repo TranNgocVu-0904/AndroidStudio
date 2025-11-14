@@ -1,5 +1,6 @@
 package com.example.menuannam
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -23,15 +25,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddScreen(changeMessage: (String) -> Unit = {}) {
+fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (FlashCard) -> Unit) {
 
     var english by rememberSaveable { mutableStateOf("") }
     var vietnamese by rememberSaveable { mutableStateOf("") }
 
     val word = remember { mutableStateListOf<Pair<String, String>>() }
+
+    val scope = rememberCoroutineScope()
 
     changeMessage("Đây là bottom bar của add screen")
 
@@ -68,13 +73,32 @@ fun AddScreen(changeMessage: (String) -> Unit = {}) {
                 Button(
                     onClick =
                         {
-                            if (vietnamese.isNotBlank() && english.isNotBlank()) {
-                                word.add(english to vietnamese) //Make a pair of words
-                                english = "" // Clear the text field
-                                vietnamese = "" // Clear the text field
+                            scope.launch {
+                                try {
+                                    insertFlashCard(
+                                        FlashCard(
+                                            0,
+                                            englishCard = english,
+                                            vietnameseCard = vietnamese
+                                        )
+                                    )
+
+                                    if (vietnamese.isNotBlank() && english.isNotBlank()) {
+                                        word.add(english to vietnamese) //Make a pair of words
+                                        english = "" // Clear the text field
+                                        vietnamese = "" // Clear the text field
+                                    }
+                                    // Only show up the "Save" button when fulfilled En and Vie
+                                }
+                                catch (e: SQLiteConstraintException){
+                                    changeMessage("Flash Cards are duplicated")
+                                }
+                                catch (e: Exception){
+                                    changeMessage("Unexpected Error")
+                                }
+
 
                             }
-                            // Only show up the "Save" button when fulfilled En and Vie
                         }, enabled = vietnamese.isNotBlank() && english.isNotBlank()
                 )
                 { Text("Save") }

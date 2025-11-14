@@ -159,6 +159,7 @@ dependencies {
     implementation(libs.androidx.room.runtime)
 
     implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
 
     testImplementation(libs.junit)
 
