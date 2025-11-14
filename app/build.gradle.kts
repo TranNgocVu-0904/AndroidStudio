@@ -8,6 +8,8 @@ plugins {
 
     id("com.google.devtools.ksp")
 
+    id("org.jetbrains.kotlin.plugin.serialization")
+
 }
 
 
@@ -160,6 +162,7 @@ dependencies {
 
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.runtime)
 
     testImplementation(libs.junit)
 
@@ -192,6 +195,10 @@ dependencies {
     // optional - Kotlin Extensions and Coroutines support for Room
 
     implementation(libs.androidx.room.ktx)
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0") // Or the latest version
+
+    implementation("androidx.navigation:navigation-compose:2.9.6") // Or a later version
 
 
 

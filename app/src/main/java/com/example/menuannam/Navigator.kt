@@ -13,44 +13,75 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.toRoute
+
 @Composable
-fun AppNavigation(navigation: NavHostController) {
+fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
     // --- Bottom bar state ---
     var message by rememberSaveable { mutableStateOf("") }
     val changeMessage: (String) -> Unit = { message = it }
 
     // --- Điều hướng (chọn 1 cách) ---
-    val toStudy  = { navigation.navigate("Study")  { launchSingleTop = true } }
-    val toAdd    = { navigation.navigate("Add")    { launchSingleTop = true } }
-    val toSearch = { navigation.navigate("Search") { launchSingleTop = true } }
+    val toStudy  = { navigation.navigate(StudyRoute)  { launchSingleTop = true } }
+    val toAdd    = { navigation.navigate(AddRoute)    { launchSingleTop = true } }
+    val toSearch = { navigation.navigate(SearchRoute) { launchSingleTop = true } }
     val navigateBack: () -> Unit = { navigation.navigateUp() }
 
     // --- Title & Back theo route ---
-    val backstackEntry by navigation.currentBackStackEntryAsState()
-    val currentRoute = backstackEntry?.destination?.route
-    val title = when (currentRoute) {
-        "Study"  -> "Study Screen"
-        "Add"    -> "Add Screen"
-        "Search" -> "Search Screen"
-        "Main", null -> "Menu An Nam"
-        else -> "Menu An Nam"
-    }
-    var showBack by rememberSaveable { mutableStateOf(false) }
-    val setShowBack: (Boolean) -> Unit = { showBack = it }
 
+    var title by rememberSaveable { mutableStateOf("Menu An Nam") }
+
+    var showBack by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    val setShowBack: (Boolean) -> Unit = {
+        showBack = it
+    }
+
+    val setTitle: (String) -> Unit = { title = it }
+
+    val insertFlashCard: suspend (FlashCard) -> Unit = {
+            flashCard -> flashCardDao.insertAll(flashCard)
+    }
+
+    val getAllFlashCards: suspend () -> List<FlashCard> = {
+        flashCardDao.getAll()
+    }
+
+    val getFlashCardById: suspend (Int) -> FlashCard? = { id ->
+        flashCardDao.getById(id)
+    }
+
+    val deleteFlashCard: suspend (FlashCard) -> Unit = { card ->
+        flashCardDao.delete(card)
+    }
+
+    val onCardSelected: (FlashCard) -> Unit = { card ->
+        navigation.navigate(ShowCardRoute(card.uid))
+    }
 
     Scaffold(
         topBar = {
-            TopBarComponent(
+            TopBarComponent (
                 title = title,
-                showBack = if (showBack) ({ navigation.navigateUp() }) else null
+                showBack = if (showBack) (
+                        navigateBack
+                )
+                else null
             )
         },
-        bottomBar = { BottomBarComponent(message = message) }
+        bottomBar = {
+            BottomBarComponent(
+                message = message
+            )
+        }
     ) { innerPadding ->
-        NavHost(navigation, "Main", Modifier.padding(innerPadding)) {
-            composable("Main") {
-                LaunchedEffect(Unit) { setShowBack(false) }
+        NavHost(navigation, MainRoute, Modifier.padding(innerPadding)) {
+            composable<MainRoute> {
+                LaunchedEffect(Unit) {
+                    setShowBack(false)
+                }
                 MenuAnNam(
                     onStudy = toStudy,
                     onAdd = toAdd,
@@ -58,25 +89,56 @@ fun AppNavigation(navigation: NavHostController) {
                     changeMessage = changeMessage
                 )
             }
-            composable("Study")  {
+            composable <StudyRoute>  {
                 // Gợi ý: trong StudyScreen dùng LaunchedEffect để set message
-                LaunchedEffect(Unit) { setShowBack(true) }
+                LaunchedEffect(Unit) {
+                    setShowBack(true)
+                    setTitle("Study Screen")
+                }
                 StudyScreen(
                     changeMessage = changeMessage
                 )
             }
-            composable("Add") {
-                LaunchedEffect(Unit) { setShowBack(true) }
+            composable <AddRoute> {
+                LaunchedEffect(Unit) {
+                    setShowBack(true)
+                    setTitle("Add Screen")
+                }
                 AddScreen(
-                    changeMessage = changeMessage
+                    changeMessage = changeMessage,
+                    insertFlashCard = insertFlashCard
                 )
             }
-            composable("Search") {
-                LaunchedEffect(Unit) { setShowBack(true) }
+            composable <SearchRoute> {
+                LaunchedEffect(Unit) {
+                    setShowBack(true)
+                    setTitle("Search Screen")
+                }
                 SearchScreen(
+                    changeMessage = changeMessage,
+                    getAllFlashCards = getAllFlashCards,
+                    selectedItem =  onCardSelected
+                )
+            }
+            composable<ShowCardRoute> { backStackEntry ->
+                LaunchedEffect(Unit) {
+                    setShowBack(true)
+                    setTitle("Show Card Screen")
+                }
+
+                // Lấy argument theo kiểu type-safe
+                val args: ShowCardRoute = backStackEntry.toRoute()
+
+                ShowCardScreen(
+                    cardId = args.cardId,
+                    getFlashCardById = getFlashCardById,
+                    deleteFlashCard = deleteFlashCard,
+                    navigateBack = navigateBack,
                     changeMessage = changeMessage
                 )
             }
         }
     }
 }
+
+

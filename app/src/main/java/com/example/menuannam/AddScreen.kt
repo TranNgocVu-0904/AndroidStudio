@@ -69,7 +69,6 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
                 horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
             )
             {
-
                 Button(
                     onClick =
                         {
@@ -102,14 +101,6 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
                         }, enabled = vietnamese.isNotBlank() && english.isNotBlank()
                 )
                 { Text("Save") }
-
-                Button(
-                    onClick =
-                        {
-                            english = ""
-                            vietnamese = ""
-                        })
-                { Text("Delete") }
             }
 
             Column {
