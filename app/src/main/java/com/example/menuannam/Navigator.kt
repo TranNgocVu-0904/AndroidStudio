@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
 
 @Composable
@@ -21,15 +20,17 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
     var message by rememberSaveable { mutableStateOf("") }
     val changeMessage: (String) -> Unit = { message = it }
 
-    // --- Điều hướng (chọn 1 cách) ---
+    // --- Navigation ---
     val toStudy  = { navigation.navigate(StudyRoute)  { launchSingleTop = true } }
     val toAdd    = { navigation.navigate(AddRoute)    { launchSingleTop = true } }
     val toSearch = { navigation.navigate(SearchRoute) { launchSingleTop = true } }
     val navigateBack: () -> Unit = { navigation.navigateUp() }
 
-    // --- Title & Back theo route ---
+    // --- Title & Back based on route ---
 
-    var title by rememberSaveable { mutableStateOf("Menu An Nam") }
+    var title by rememberSaveable {
+        mutableStateOf("Menu An Nam")
+    }
 
     var showBack by rememberSaveable {
         mutableStateOf(false)
@@ -49,18 +50,45 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
         flashCardDao.getAll()
     }
 
-    val getFlashCardById: suspend (Int) -> FlashCard? = { id ->
-        flashCardDao.getById(id)
+    val updateFlashCard: suspend (FlashCard) -> Unit = { card ->
+        flashCardDao.update(card)
     }
 
-    val deleteFlashCard: suspend (FlashCard) -> Unit = { card ->
-        flashCardDao.delete(card)
+//    val getFlashCardById: suspend (Int) -> FlashCard? = { id ->
+//        flashCardDao.getFlashCardById(id)
+//    }
+
+    val getFlashCardByPair: suspend (String, String) -> FlashCard? = { en, vn ->
+        flashCardDao.getFlashCardByPair(en, vn)
     }
+
+//    val deleteFlashCard: suspend (FlashCard) -> Unit = { card ->
+//        flashCardDao.delete(card)
+//    }
+
+    val deleteFlashCardByPair: suspend (FlashCard) -> Unit = { card ->
+        flashCardDao.deleteByCardPair(
+            english = card.englishCard ?: "",
+            vietnamese = card.vietnameseCard ?: ""
+        )
+    }
+
+    val searchFlashCardByPair: suspend (String, String) -> List<FlashCard> = { en, vn ->
+        flashCardDao.searchFlashCardByPair(en, vn)
+    }
+
+//    val onCardSelected: (FlashCard) -> Unit = { card ->
+//        navigation.navigate(ShowCardRoute(card.uid))
+//    }
 
     val onCardSelected: (FlashCard) -> Unit = { card ->
-        navigation.navigate(ShowCardRoute(card.uid))
+        navigation.navigate(
+            ShowCardRoute(
+                english = card.englishCard ?: "",
+                vietnamese = card.vietnameseCard ?: ""
+            )
+        )
     }
-
     Scaffold(
         topBar = {
             TopBarComponent (
@@ -117,7 +145,9 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
                 SearchScreen(
                     changeMessage = changeMessage,
                     getAllFlashCards = getAllFlashCards,
-                    selectedItem =  onCardSelected
+                    deleteFlashCardByPair = deleteFlashCardByPair,
+                    selectedItem =  onCardSelected,
+                    searchFlashCardByPair = searchFlashCardByPair
                 )
             }
             composable<ShowCardRoute> { backStackEntry ->
@@ -126,13 +156,23 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
                     setTitle("Show Card Screen")
                 }
 
-                // Lấy argument theo kiểu type-safe
+                // Take argument for type-safe navigation
                 val args: ShowCardRoute = backStackEntry.toRoute()
 
+//                ShowCardScreen(
+//                    cardId = args.cardId,
+//                    getFlashCardById = getFlashCardById,
+//                    deleteFlashCard = deleteFlashCard,
+//                     updateFlashCard = updateFlashCard,
+//                    navigateBack = navigateBack,
+//                    changeMessage = changeMessage
+//                )
                 ShowCardScreen(
-                    cardId = args.cardId,
-                    getFlashCardById = getFlashCardById,
-                    deleteFlashCard = deleteFlashCard,
+                    english = args.english,
+                    vietnamese = args.vietnamese,
+                    getFlashCardByPair = getFlashCardByPair,
+                    deleteFlashCardByPair = deleteFlashCardByPair,
+                    updateFlashCard = updateFlashCard,
                     navigateBack = navigateBack,
                     changeMessage = changeMessage
                 )

@@ -14,6 +14,10 @@ object AddRoute
 @Serializable
 object SearchRoute
 
-// Route có argument: id của FlashCard
 @Serializable
-data class ShowCardRoute(val cardId: Int)
+data class ShowCardRoute(val english: String, val vietnamese: String)
+
+// Route có argument: id của FlashCard
+//@Serializable
+//data class ShowCardRoute(val cardId: Int)
+

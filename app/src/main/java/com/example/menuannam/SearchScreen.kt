@@ -21,43 +21,67 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
-
 @Composable
 fun FlashCardList(
     selectedItem: (FlashCard) -> Unit,
-    flashCards: List<FlashCard>
+    flashCards: List<FlashCard>,
+    onDelete: (FlashCard) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.padding(16.dp)
     ) {
         items(
             items = flashCards,
-            key = { flashCard ->
-                flashCard.uid
-            }
+            key = { flashCard -> flashCard.uid }
         ) { flashCard ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .border(width = 1.dp, color = Color.LightGray)
-                    .padding(6.dp)
-                    .clickable(onClick = {
-                        selectedItem(flashCard)
-                    }
-                    )
+                    .padding(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.padding(6.dp))
-                { Text(flashCard.englishCard.toString()) }
-                Column(modifier = Modifier.padding(6.dp)) { Text(" = ") }
-                Column(modifier = Modifier.padding(6.dp))
-                { Text(flashCard.vietnameseCard.toString()) }
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable { selectedItem(flashCard) },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = flashCard.englishCard.orEmpty(),
+                        modifier = Modifier.padding(6.dp)
+                    )
+                    Text(
+                        text = " = ",
+                        modifier = Modifier.padding(6.dp)
+                    )
+                    Text(
+                        text = flashCard.vietnameseCard.orEmpty(),
+                        modifier = Modifier.padding(6.dp)
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(onClick = { onDelete(flashCard) }) {
+                        Text("Delete")
+                    }
+                    Button(onClick = { selectedItem(flashCard) }) {
+                        Text("Edit")
+                    }
+                }
             }
         }
     }
@@ -67,10 +91,22 @@ fun FlashCardList(
 fun SearchScreen(
     changeMessage: (String) -> Unit = {},
     getAllFlashCards: suspend () -> List<FlashCard>,
-    selectedItem: (FlashCard) -> Unit
+    selectedItem: (FlashCard) -> Unit,
+    searchFlashCardByPair: suspend (String, String) -> List<FlashCard>,
+    deleteFlashCardByPair: suspend (FlashCard) -> Unit
 ) {
-    var flashCards: List<FlashCard> by remember { mutableStateOf(emptyList<FlashCard>())}
+    var flashCards: List<FlashCard> by remember { mutableStateOf(emptyList()) }
 
+    var vnText by rememberSaveable { mutableStateOf("") }
+    var enText by rememberSaveable { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
+
+    val updateCardList: suspend () -> Unit = {
+        flashCards = searchFlashCardByPair(enText, vnText)
+    }
+
+    // Load list khi vào màn hình
     LaunchedEffect(Unit) {
         flashCards = getAllFlashCards()
     }
@@ -84,14 +120,21 @@ fun SearchScreen(
     ) {
         FlashCardList(
             flashCards = flashCards,
-            selectedItem = selectedItem
+            selectedItem = selectedItem,
+            onDelete = { card ->
+                scope.launch {
+                    deleteFlashCardByPair(card)
+                    updateCardList()
+                }
+            }
         )
         Button(
             onClick = {
                 Log.d("My test", "click Button ")
             }
-        )
-        { Text("About") }
+        ) {
+            Text("About")
+        }
         Spacer(
             modifier = Modifier.size(16.dp)
         )

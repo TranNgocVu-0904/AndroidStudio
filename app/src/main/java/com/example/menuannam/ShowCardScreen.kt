@@ -18,19 +18,45 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ShowCardScreen(
-    cardId: Int,
-    getFlashCardById: suspend (Int) -> FlashCard?,
-    deleteFlashCard: suspend (FlashCard) -> Unit,
+//    cardId: Int,
+//    getFlashCardById: suspend (Int) -> FlashCard?,
+//    deleteFlashCard: suspend (FlashCard) -> Unit,
+//    navigateBack: () -> Unit,
+//    changeMessage: (String) -> Unit,
+//    updateFlashCard: suspend (FlashCard) -> Unit
+
+    english: String,
+    vietnamese: String,
+    getFlashCardByPair: suspend (String, String) -> FlashCard?,
+    deleteFlashCardByPair: suspend (FlashCard) -> Unit,
     navigateBack: () -> Unit,
-    changeMessage: (String) -> Unit
+    changeMessage: (String) -> Unit,
+    updateFlashCard: suspend (FlashCard) -> Unit
 ) {
     var card by remember { mutableStateOf<FlashCard?>(null) }
 
     val scope = rememberCoroutineScope()
 
+    var englishText by remember { mutableStateOf("") }
+    var vietnameseText by remember { mutableStateOf("") }
+
     // Load card từ DB khi vào màn hình
-    LaunchedEffect(cardId) {
-        card = getFlashCardById(cardId)
+    //    LaunchedEffect(cardId) {
+    //        val loaded = getFlashCardById(cardId)
+    //        card = loaded
+    //        if (loaded != null) {
+    //            englishText = loaded.englishCard ?: ""
+    //            vietnameseText = loaded.vietnameseCard ?: ""
+    //        }
+    //    }
+
+    LaunchedEffect(english, vietnamese) {
+        val loaded = getFlashCardByPair(english, vietnamese)
+        card = loaded
+        if (loaded != null) {
+            englishText = loaded.englishCard ?: ""
+            vietnameseText = loaded.vietnameseCard ?: ""
+        }
     }
 
     if (card == null) {
@@ -41,29 +67,46 @@ fun ShowCardScreen(
     val currentCard = card!!
 
     Column {
+
         TextField(
-            value = currentCard.englishCard ?: "",
-            onValueChange = {}, // read-only nên bỏ trống
+            value = englishText,
+            onValueChange = {englishText = it}, // read-only nên bỏ trống
             enabled = true,
             label = { Text(stringResource(R.string.English_Label)) },
             placeholder = { Text("Enter text") }
         )
 
         TextField(
-            value = currentCard.vietnameseCard ?: "",
-            onValueChange = {},
+            value = vietnameseText,
+            onValueChange = {vietnameseText = it},
             enabled = true,
             label = { Text(stringResource(R.string.Vietnamese_Label)) }
         )
 
-
         Button(onClick = {
             scope.launch {
-                deleteFlashCard(currentCard)
+                val updatedCard = currentCard.copy(
+                    englishCard = englishText,
+                    vietnameseCard = vietnameseText
+                )
+                updateFlashCard(updatedCard)
+                changeMessage("Card updated")
+                navigateBack()
+            }
+        }
+        ){
+            Text("Save")
+        }
+
+        // Nếu bạn vẫn muốn giữ nút Delete riêng:
+        Button(onClick = {
+            scope.launch {
+                deleteFlashCardByPair(currentCard)
                 changeMessage("Card deleted")
                 navigateBack()
             }
-        }) {
+        }
+        ){
             Text("Delete")
         }
     }

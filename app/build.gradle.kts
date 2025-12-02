@@ -163,6 +163,7 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.foundation.layout)
 
     testImplementation(libs.junit)
 

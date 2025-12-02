@@ -35,11 +35,9 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
     var vietnamese by rememberSaveable { mutableStateOf("") }
 
     val word = remember { mutableStateListOf<Pair<String, String>>() }
-
     val scope = rememberCoroutineScope()
 
     changeMessage("Đây là bottom bar của add screen")
-
 
     Column(
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -81,7 +79,6 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
                                             vietnameseCard = vietnamese
                                         )
                                     )
-
                                     if (vietnamese.isNotBlank() && english.isNotBlank()) {
                                         word.add(english to vietnamese) //Make a pair of words
                                         english = "" // Clear the text field
@@ -95,8 +92,6 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
                                 catch (e: Exception){
                                     changeMessage("Unexpected Error")
                                 }
-
-
                             }
                         }, enabled = vietnamese.isNotBlank() && english.isNotBlank()
                 )
