@@ -12,6 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +38,9 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
     val word = remember { mutableStateListOf<Pair<String, String>>() }
     val scope = rememberCoroutineScope()
 
-    changeMessage("Đây là bottom bar của add screen")
+    LaunchedEffect(Unit) {
+        changeMessage("Đây là bottom bar của add screen")
+    }
 
     Column(
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -58,7 +61,7 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
                 onValueChange = { vietnamese = it },
                 label = { Text(stringResource(R.string.Vietnamese_Label)) },
                 placeholder = { Text("Nhập nội dung") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.semantics { contentDescription = "Vietnamese Input" }.fillMaxWidth()
             )
 
             Row(
@@ -84,17 +87,24 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
                                         english = "" // Clear the text field
                                         vietnamese = "" // Clear the text field
                                     }
-                                    // Only show up the "Save" button when fulfilled En and Vie
+                                    // Only show up the "Save" button when fulfilled En and Viet
+                                    changeMessage("Flash card successfully added to your database.")
                                 }
                                 catch (e: SQLiteConstraintException){
-                                    changeMessage("Flash Cards are duplicated")
+                                    // changeMessage("Flash Cards are duplicated")
+                                    changeMessage("Flash card already exists in your database.")
                                 }
                                 catch (e: Exception){
                                     changeMessage("Unexpected Error")
                                 }
                             }
                         },
-                    enabled = vietnamese.isNotBlank() && english.isNotBlank()
+                    // enabled = vietnamese.isNotBlank() && english.isNotBlank(),
+                    enabled = true,
+
+                    modifier = Modifier.semantics {
+                        contentDescription = "Save"
+                    }
                 )
                 { Text("Save") }
             }

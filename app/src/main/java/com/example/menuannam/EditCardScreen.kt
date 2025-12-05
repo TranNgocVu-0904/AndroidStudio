@@ -27,12 +27,22 @@ fun EditCardScreen(
     updateFlashCard: suspend (FlashCard) -> Unit
     */
 
+    /*
     english: String,
     vietnamese: String,
     getFlashCardByPair: suspend (String, String) -> FlashCard?,
     navigateBack: () -> Unit,
     changeMessage: (String) -> Unit,
     updateFlashCard: suspend (FlashCard) -> Unit
+    */
+
+    englishOld: String,
+    vietnameseOld: String,
+    getFlashCardByPair: suspend (String, String) -> FlashCard?,
+    updateFlashCardByPair: suspend (String, String, String, String) -> Unit,
+    navigateBack: () -> Unit,
+    changeMessage: (String) -> Unit
+
 ) {
     var card by remember { mutableStateOf<FlashCard?>(null) }
 
@@ -54,8 +64,8 @@ fun EditCardScreen(
     */
     changeMessage("Đây là bottom bar của edit card screen")
 
-    LaunchedEffect(english, vietnamese) {
-        val loaded = getFlashCardByPair(english, vietnamese)
+    LaunchedEffect(englishOld, vietnameseOld) {
+        val loaded = getFlashCardByPair(englishOld, vietnameseOld)
         card = loaded
         if (loaded != null) {
             englishText = loaded.englishCard ?: ""
@@ -67,8 +77,6 @@ fun EditCardScreen(
         Text("Loading...")
         return
     }
-
-    val currentCard = card!!
 
     Column {
 
@@ -89,11 +97,11 @@ fun EditCardScreen(
 
         Button(onClick = {
             scope.launch {
-                val updatedCard = currentCard.copy(
-                    englishCard = englishText,
-                    vietnameseCard = vietnameseText
-                )
-                updateFlashCard(updatedCard)
+                updateFlashCardByPair(
+                    englishOld,
+                    vietnameseOld,
+                    englishText,
+                    vietnameseText)
                 changeMessage("Card updated")
                 navigateBack()
             }

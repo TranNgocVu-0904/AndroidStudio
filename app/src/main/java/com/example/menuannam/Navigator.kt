@@ -50,8 +50,10 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
         flashCardDao.getAll()
     }
 
-    val updateFlashCard: suspend (FlashCard) -> Unit = { card ->
-        flashCardDao.update(card)
+    val updateFlashCardByPair: suspend (
+        String, String, String, String
+    ) -> Unit = { oldEn, oldVn, newEn, newVn ->
+        flashCardDao.updateFlashCardByPair(oldEn, oldVn, newEn, newVn)
     }
 
     /*
@@ -95,11 +97,22 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
             )
         )
     }
+    /*
     val onEditCard: (FlashCard) -> Unit = { card ->
         navigation.navigate(
             EditCardRoute(
                 english = card.englishCard ?: "",
                 vietnamese = card.vietnameseCard ?: ""
+            )
+        )
+    }
+    */
+
+    val onEditCard: (FlashCard) -> Unit = { card ->
+        navigation.navigate(
+            EditCardRoute(
+                englishOld = card.englishCard ?: "",
+                vietnameseOld = card.vietnameseCard ?: ""
             )
         )
     }
@@ -201,10 +214,10 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
                 val args: EditCardRoute = backStackEntry.toRoute()
 
                 EditCardScreen(
-                    english = args.english,
-                    vietnamese = args.vietnamese,
+                    englishOld = args.englishOld,
+                    vietnameseOld = args.vietnameseOld,
                     getFlashCardByPair = getFlashCardByPair,
-                    updateFlashCard = updateFlashCard,
+                    updateFlashCardByPair = updateFlashCardByPair,
                     navigateBack = navigateBack,
                     changeMessage = changeMessage
                 )

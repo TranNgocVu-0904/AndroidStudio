@@ -18,7 +18,7 @@ object SearchRoute
 data class ShowCardRoute(val english: String, val vietnamese: String)
 
 @Serializable
-data class EditCardRoute(val english: String, val vietnamese: String)
+data class EditCardRoute(val englishOld: String, val vietnameseOld: String)
 
 /*
 Route có argument: id của FlashCard

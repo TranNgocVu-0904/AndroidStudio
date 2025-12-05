@@ -40,11 +40,14 @@ interface FlashCardDao {
     @Insert
     suspend fun insertAll(vararg flashCard: FlashCard)
 
+    /*
     @Update
     suspend fun update(flashCard: FlashCard)
 
     @Delete
     suspend fun delete(flashCard: FlashCard)
+    */
+
 
 
     // ----------------------- Based on ID -----------------------
@@ -86,4 +89,11 @@ interface FlashCardDao {
             "AND vietnamese_card LIKE '%' || :vietnamese || '%' "
     )
     suspend fun searchFlashCardByPair(english: String, vietnamese: String): List<FlashCard>
+
+    @Query("UPDATE FlashCards " +
+            "SET english_card = :englishNew, " +
+            "vietnamese_card = :vietnameseNew " +
+            "WHERE english_card = :englishOld " +
+            "AND vietnamese_card = :vietnameseOld")
+    suspend fun updateFlashCardByPair( englishOld: String, vietnameseOld: String, englishNew: String,  vietnameseNew: String )
 }
