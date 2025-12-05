@@ -93,7 +93,8 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
                                     changeMessage("Unexpected Error")
                                 }
                             }
-                        }, enabled = vietnamese.isNotBlank() && english.isNotBlank()
+                        },
+                    enabled = vietnamese.isNotBlank() && english.isNotBlank()
                 )
                 { Text("Save") }
             }
@@ -106,61 +107,63 @@ fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (Fl
         }
     }
 
-//@Composable
-//fun AddScreen(onBack: () -> Unit) {
-//
-//    var enWord = ""
-//
-//    var vnWord = ""
-//
-//    //var enWord by remember { mutableStateOf("") }
-//
-//    //var vnWord by remember { mutableStateOf("") }
-//
-//    //var enWord by rememberSaveable { mutableStateOf("") }
-//
-//    //var vnWord by rememberSaveable { mutableStateOf("") }
-//
-//    Column() {
-//
-//        TextField(
-//
-//            value = enWord,
-//
-//            onValueChange = { enWord = it },
-//
-//            modifier = Modifier.semantics{contentDescription = "English String"},
-//
-//            label = { Text("en") }
-//
-//        )
-//
-//        TextField(
-//
-//            value = vnWord,
-//
-//            onValueChange = { vnWord = it },
-//
-//            label = { Text("vn") }
-//
-//        )
-//
-//        Button(onClick = {
-//
-//            Log.d(
-//
-//                "TEST", "Adding a card with words: "
-//
-//                        + enWord + " and " + vnWord
-//
-//            )
-//
-//        }) {
-//
-//            Text("Add")
-//
-//        }
-//
-//    }
-//
-//}
+/*
+@Composable
+fun AddScreen(onBack: () -> Unit) {
+
+    var enWord = ""
+
+    var vnWord = ""
+
+    //var enWord by remember { mutableStateOf("") }
+
+    //var vnWord by remember { mutableStateOf("") }
+
+    //var enWord by rememberSaveable { mutableStateOf("") }
+
+    //var vnWord by rememberSaveable { mutableStateOf("") }
+
+    Column() {
+
+        TextField(
+
+            value = enWord,
+
+            onValueChange = { enWord = it },
+
+            modifier = Modifier.semantics{contentDescription = "English String"},
+
+            label = { Text("en") }
+
+        )
+
+        TextField(
+
+            value = vnWord,
+
+            onValueChange = { vnWord = it },
+
+            label = { Text("vn") }
+
+        )
+
+        Button(onClick = {
+
+            Log.d(
+
+                "TEST", "Adding a card with words: "
+
+                        + enWord + " and " + vnWord
+
+            )
+
+        }) {
+
+            Text("Add")
+
+        }
+
+    }
+
+}
+ */

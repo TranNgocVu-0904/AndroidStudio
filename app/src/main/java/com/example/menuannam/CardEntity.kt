@@ -10,9 +10,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Update
 
-// =======================
-// Entity
-// =======================
+// ======================= Entity =======================
 
 @Entity(
     tableName = "FlashCards",
@@ -29,16 +27,12 @@ data class FlashCard(
     @ColumnInfo(name = "vietnamese_card") val vietnameseCard: String?
 )
 
-// =======================
-// DAO
-// =======================
+// ======================= DAO =======================
 
 @Dao
 interface FlashCardDao {
 
-    // -----------------------
-    // Common / All
-    // -----------------------
+    // ----------------------- Common / All -----------------------
 
     @Query("SELECT * FROM FlashCards")
     suspend fun getAll(): List<FlashCard>
@@ -53,9 +47,7 @@ interface FlashCardDao {
     suspend fun delete(flashCard: FlashCard)
 
 
-    // ======================
-    // ==== Based on ID ====
-    // ======================
+    // ----------------------- Based on ID -----------------------
 
     @Query("SELECT * FROM FlashCards WHERE uid IN (:flashCardIds)")
     suspend fun loadAllByIds(flashCardIds: IntArray): List<FlashCard>
@@ -64,9 +56,7 @@ interface FlashCardDao {
     suspend fun getFlashCardById(id: Int): FlashCard?
 
 
-    // ============================
-    // ==== Based on pair (EN/VN) ==
-    // ============================
+    // ----------------------- Based on pair (EN/VN) -----------------------
 
     // Tìm theo cặp từ (dùng LIKE + LIMIT 1)
     @Query(

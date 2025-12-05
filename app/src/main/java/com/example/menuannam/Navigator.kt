@@ -54,17 +54,21 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
         flashCardDao.update(card)
     }
 
-//    val getFlashCardById: suspend (Int) -> FlashCard? = { id ->
-//        flashCardDao.getFlashCardById(id)
-//    }
+    /*
+    val getFlashCardById: suspend (Int) -> FlashCard? = { id ->
+        flashCardDao.getFlashCardById(id)
+    }
+    */
 
     val getFlashCardByPair: suspend (String, String) -> FlashCard? = { en, vn ->
         flashCardDao.getFlashCardByPair(en, vn)
     }
 
-//    val deleteFlashCard: suspend (FlashCard) -> Unit = { card ->
-//        flashCardDao.delete(card)
-//    }
+    /*
+    val deleteFlashCard: suspend (FlashCard) -> Unit = { card ->
+            flashCardDao.delete(card)
+        }
+    */
 
     val deleteFlashCardByPair: suspend (FlashCard) -> Unit = { card ->
         flashCardDao.deleteByCardPair(
@@ -77,9 +81,11 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
         flashCardDao.searchFlashCardByPair(en, vn)
     }
 
-//    val onCardSelected: (FlashCard) -> Unit = { card ->
-//        navigation.navigate(ShowCardRoute(card.uid))
-//    }
+    /*
+    val onCardSelected: (FlashCard) -> Unit = { card ->
+        navigation.navigate(ShowCardRoute(card.uid))
+    }
+     */
 
     val onCardSelected: (FlashCard) -> Unit = { card ->
         navigation.navigate(
@@ -89,6 +95,15 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
             )
         )
     }
+    val onEditCard: (FlashCard) -> Unit = { card ->
+        navigation.navigate(
+            EditCardRoute(
+                english = card.englishCard ?: "",
+                vietnamese = card.vietnameseCard ?: ""
+            )
+        )
+    }
+
     Scaffold(
         topBar = {
             TopBarComponent (
@@ -118,7 +133,6 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
                 )
             }
             composable <StudyRoute>  {
-                // Gợi ý: trong StudyScreen dùng LaunchedEffect để set message
                 LaunchedEffect(Unit) {
                     setShowBack(true)
                     setTitle("Study Screen")
@@ -147,6 +161,7 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
                     getAllFlashCards = getAllFlashCards,
                     deleteFlashCardByPair = deleteFlashCardByPair,
                     selectedItem =  onCardSelected,
+                    editItem = onEditCard,
                     searchFlashCardByPair = searchFlashCardByPair
                 )
             }
@@ -158,20 +173,37 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
 
                 // Take argument for type-safe navigation
                 val args: ShowCardRoute = backStackEntry.toRoute()
-
-//                ShowCardScreen(
-//                    cardId = args.cardId,
-//                    getFlashCardById = getFlashCardById,
-//                    deleteFlashCard = deleteFlashCard,
-//                     updateFlashCard = updateFlashCard,
-//                    navigateBack = navigateBack,
-//                    changeMessage = changeMessage
-//                )
+                /*
+                ShowCardScreen(
+                    cardId = args.cardId,
+                    getFlashCardById = getFlashCardById,
+                    deleteFlashCard = deleteFlashCard,
+                     updateFlashCard = updateFlashCard,
+                    navigateBack = navigateBack,
+                    changeMessage = changeMessage
+                )
+                 */
                 ShowCardScreen(
                     english = args.english,
                     vietnamese = args.vietnamese,
                     getFlashCardByPair = getFlashCardByPair,
                     deleteFlashCardByPair = deleteFlashCardByPair,
+                    navigateBack = navigateBack,
+                    changeMessage = changeMessage
+                )
+            }
+            composable<EditCardRoute>{ backStackEntry ->
+                LaunchedEffect(Unit) {
+                    setShowBack(true)
+                    setTitle("Edit Card Screen")
+                }
+                // Take argument for type-safe navigation
+                val args: EditCardRoute = backStackEntry.toRoute()
+
+                EditCardScreen(
+                    english = args.english,
+                    vietnamese = args.vietnamese,
+                    getFlashCardByPair = getFlashCardByPair,
                     updateFlashCard = updateFlashCard,
                     navigateBack = navigateBack,
                     changeMessage = changeMessage
