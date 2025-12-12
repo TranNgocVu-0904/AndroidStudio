@@ -164,6 +164,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.runtime)
 
     testImplementation(libs.junit)
 
@@ -200,6 +201,12 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0") // Or the latest version
 
     implementation("androidx.navigation:navigation-compose:2.9.6") // Or a later version
+
+
+    // retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
 
 
 

@@ -15,15 +15,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 
 @Composable
-fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
+fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao, networkService: NetworkService) {
     // --- Bottom bar state ---
     var message by rememberSaveable { mutableStateOf("") }
     val changeMessage: (String) -> Unit = { message = it }
+
 
     // --- Navigation ---
     val toStudy  = { navigation.navigate(StudyRoute)  { launchSingleTop = true } }
     val toAdd    = { navigation.navigate(AddRoute)    { launchSingleTop = true } }
     val toSearch = { navigation.navigate(SearchRoute) { launchSingleTop = true } }
+    val toLogIn = { navigation.navigate(LogInRoute) { launchSingleTop = true } }
     val navigateBack: () -> Unit = { navigation.navigateUp() }
 
     // --- Title & Back based on route ---
@@ -64,6 +66,10 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
 
     val getFlashCardByPair: suspend (String, String) -> FlashCard? = { en, vn ->
         flashCardDao.getFlashCardByPair(en, vn)
+    }
+
+    val getRandomLesson: suspend (Int) -> List<FlashCard> = { limit ->
+        flashCardDao.getRandomFlashCards(limit)
     }
 
     /*
@@ -137,11 +143,13 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
             composable<MainRoute> {
                 LaunchedEffect(Unit) {
                     setShowBack(false)
+                    setTitle("Menu An Nam")
                 }
                 MenuAnNam(
                     onStudy = toStudy,
                     onAdd = toAdd,
                     onSearch = toSearch,
+                    onLogIn= toLogIn,
                     changeMessage = changeMessage
                 )
             }
@@ -151,7 +159,8 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
                     setTitle("Study Screen")
                 }
                 StudyScreen(
-                    changeMessage = changeMessage
+                    changeMessage = changeMessage,
+                    getRandomLesson = getRandomLesson
                 )
             }
             composable <AddRoute> {
@@ -220,6 +229,16 @@ fun AppNavigation(navigation: NavHostController,  flashCardDao: FlashCardDao) {
                     updateFlashCardByPair = updateFlashCardByPair,
                     navigateBack = navigateBack,
                     changeMessage = changeMessage
+                )
+            }
+            composable <LogInRoute>  {
+                LaunchedEffect(Unit) {
+                    setShowBack(true)
+                    setTitle("Log In Screen")
+                }
+                LogInScreen(
+                    changeMessage = changeMessage,
+                    networkService = networkService
                 )
             }
         }

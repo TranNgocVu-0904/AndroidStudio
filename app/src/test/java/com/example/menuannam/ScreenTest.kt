@@ -22,8 +22,6 @@ class DummyFlashCardDao : FlashCardDao {
         return emptyList<FlashCard>()
     }
 
-
-
     override suspend fun findByCards(
         english: String,
         vietnamese: String
@@ -58,8 +56,12 @@ class DummyFlashCardDao : FlashCardDao {
 
     }
 
-    override suspend fun deleteByCardPair(english: String, vietnamese: String) {
+    override suspend fun getRandomFlashCards(size: Int): List<FlashCard> {
+        TODO("Not yet implemented")
+    }
 
+    override suspend fun deleteByCardPair(english: String, vietnamese: String) {
+        TODO("Not yet implemented")
     }
 
     override suspend fun searchFlashCardByPair(
@@ -68,15 +70,22 @@ class DummyFlashCardDao : FlashCardDao {
     ): List<FlashCard> {
         TODO("Not yet implemented")
     }
+}
 
+class DummyNetworkService : NetworkService {
+    override suspend fun generateToken(
+        url: String,
+        email: UserCredential
+    ): Token {
+        // Không gọi mạng thật, trả về token giả
+        return Token(token = "dummy-token")
+    }
 }
 
 class DummyFlashCardDaoUnsuccessfulInsert : FlashCardDao {
     override suspend fun getAll(): List<FlashCard> {
         return emptyList<FlashCard>()
     }
-
-
 
     override suspend fun findByCards(
         english: String,
@@ -113,6 +122,10 @@ class DummyFlashCardDaoUnsuccessfulInsert : FlashCardDao {
 
     }
 
+    override suspend fun getRandomFlashCards(size: Int): List<FlashCard> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun deleteByCardPair(english: String, vietnamese: String) {
     }
 
@@ -138,26 +151,33 @@ class ScreenTest {
             TestNavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(ComposeNavigator())
         val dummyFlashCardDao = DummyFlashCardDao()
+        val dummyNetworkService = DummyNetworkService()
         composeTestRule.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
             )
         }
         assertEquals(true, navController.currentDestination?.hasRoute<MainRoute>())
     }
 
-
     @Test
     fun clickOnStudyCards() {
-        val navController =
-            TestNavHostController(ApplicationProvider.getApplicationContext())
+
+        val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(ComposeNavigator())
+
         val dummyFlashCardDao = DummyFlashCardDao()
+
+        val dummyNetworkService = DummyNetworkService()
+
         composeTestRule.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
+
             )
         }
         composeTestRule.runOnUiThread {
@@ -172,15 +192,19 @@ class ScreenTest {
 
     @Test
     fun clickOnAddCard() {
-        val navController =
-            TestNavHostController(ApplicationProvider.getApplicationContext())
+
+        val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(ComposeNavigator())
+
         val dummyFlashCardDao = DummyFlashCardDao()
+
+        val dummyNetworkService = DummyNetworkService()
 
         composeTestRule.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
             )
         }
         composeTestRule.runOnUiThread {
@@ -195,14 +219,19 @@ class ScreenTest {
 
     @Test
     fun clickOnSearchCards() {
+
         val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(ComposeNavigator())
+
         val dummyFlashCardDao = DummyFlashCardDao()
+
+        val dummyNetworkService = DummyNetworkService()
 
         composeTestRule.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
             )
         }
         composeTestRule.runOnUiThread {
@@ -215,9 +244,9 @@ class ScreenTest {
         assertEquals(true, navController.currentDestination?.hasRoute<SearchRoute>())
     }
 
-
     @Test
     fun homeScreenRetained_afterConfigChange() {
+
         val stateRestorationTester = StateRestorationTester(composeTestRule)
         /*
         The StateRestorationTester class is used to test the state restoration for composable components without recreating activities.
@@ -228,11 +257,14 @@ class ScreenTest {
 
         val dummyFlashCardDao = DummyFlashCardDao()
 
+        val dummyNetworkService = DummyNetworkService()
+
         // Set content through the StateRestorationTester object.
         stateRestorationTester.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
             )
         }
         composeTestRule.runOnUiThread {
@@ -251,14 +283,19 @@ class ScreenTest {
 // type: navigation-back
     @Test
     fun clickOnAddCardAndBack() {
+
         val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(ComposeNavigator())
 
         val dummyFlashCardDao = DummyFlashCardDao()
+
+        val dummyNetworkService = DummyNetworkService()
+
         composeTestRule.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
             )
         }
         composeTestRule.runOnUiThread {
@@ -276,14 +313,19 @@ class ScreenTest {
     // AddCard
     @Test
     fun typeOnEnTextInput() {
+
         val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(ComposeNavigator())
+
         val dummyFlashCardDao = DummyFlashCardDao()
+
+        val dummyNetworkService = DummyNetworkService()
 
         composeTestRule.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
             )
         }
         composeTestRule.runOnUiThread {
@@ -308,15 +350,21 @@ class ScreenTest {
     // AddCard
     @Test
     fun keepEnglishStringAfterRotation() {
+
         val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(ComposeNavigator())
+
         val dummyFlashCardDao = DummyFlashCardDao()
 
         val stateRestorationTester = StateRestorationTester(composeTestRule)
+
+        val dummyNetworkService = DummyNetworkService()
+
         stateRestorationTester.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
             )
         }
         composeTestRule.runOnUiThread {
@@ -341,13 +389,19 @@ class ScreenTest {
 
     @Test
     fun clickOnAddCardSuccessful() {
+
         val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(ComposeNavigator())
+
         val dummyFlashCardDao = DummyFlashCardDao()
+
+        val dummyNetworkService = DummyNetworkService()
+
         composeTestRule.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
             )
         }
         composeTestRule.runOnUiThread {
@@ -364,7 +418,6 @@ class ScreenTest {
         composeTestRule.onNodeWithContentDescription("Message")
             .assertExists()
             .assertTextEquals("Flash card successfully added to your database.")
-
     }
 
 
@@ -376,12 +429,16 @@ class ScreenTest {
 
         val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(ComposeNavigator())
+
         val dummyFlashCardDao = DummyFlashCardDaoUnsuccessfulInsert()
+
+        val dummyNetworkService = DummyNetworkService()
 
         composeTestRule.setContent {
             AppNavigation(
                 navigation = navController,
-                flashCardDao = dummyFlashCardDao
+                flashCardDao = dummyFlashCardDao,
+                networkService = dummyNetworkService
             )
         }
         composeTestRule.runOnUiThread {

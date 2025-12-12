@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.example.menuannam.ui.theme.MenuAnNamTheme
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
 class MainActivity : ComponentActivity() {
@@ -23,8 +25,15 @@ class MainActivity : ComponentActivity() {
                 ).build()
                 val flashCardDao = db.flashCardDao()
 
+                val retrofit: Retrofit = Retrofit.Builder()
+                    .baseUrl("https://placeholder.com")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+
+                val networkService = retrofit.create(NetworkService::class.java)
+
                 AppNavigation(
-                    navigation, flashCardDao
+                    navigation, flashCardDao,networkService
                 )
             }
         }

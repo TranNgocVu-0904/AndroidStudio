@@ -18,12 +18,19 @@ import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MenuAnNam(onStudy: () -> Unit, onAdd: () -> Unit, onSearch: () -> Unit, changeMessage: (String) -> Unit = {}){
+fun MenuAnNam(
+    onStudy: () -> Unit,
+    onAdd: () -> Unit,
+    onSearch: () -> Unit,
+    changeMessage: (String) -> Unit = {},
+    onLogIn: () -> Unit
+){
 
     changeMessage("Đây là bottom bar của menu screen")
 
     Column(
             modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+
             verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally)
         {
@@ -35,6 +42,9 @@ fun MenuAnNam(onStudy: () -> Unit, onAdd: () -> Unit, onSearch: () -> Unit, chan
             }
             Button(onClick = {onSearch()}, modifier = Modifier.semantics{ contentDescription= "navigationToSearchScreen" }.size(width = 100.dp, height = 80.dp)) {
                 Text("Search")
+            }
+            Button(onClick = {onLogIn()}, modifier = Modifier.semantics{ contentDescription= "navigationToLogInScreen" }.size(width = 100.dp, height = 80.dp)) {
+                Text("Log In")
             }
         }
     }

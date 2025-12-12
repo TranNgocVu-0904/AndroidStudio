@@ -1,6 +1,6 @@
 [versions]
 
-agp = "8.13.1"
+agp = "8.13.2"
 
 composeVersion = "1.9.4"
 
@@ -39,6 +39,7 @@ ui = "1.9.4"
 foundation = "1.9.4"
 runtime = "1.9.4"
 foundationLayout = "1.9.5"
+runtimeVersion = "1.10.0"
 
 
 
@@ -87,6 +88,7 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref 
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
+androidx-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtimeVersion" }
 
 
 

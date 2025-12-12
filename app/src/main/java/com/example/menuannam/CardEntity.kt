@@ -96,4 +96,7 @@ interface FlashCardDao {
             "WHERE english_card = :englishOld " +
             "AND vietnamese_card = :vietnameseOld")
     suspend fun updateFlashCardByPair( englishOld: String, vietnameseOld: String, englishNew: String,  vietnameseNew: String )
+
+    @Query("SELECT * FROM FlashCards ORDER BY RANDOM() LIMIT :size")
+    suspend fun getRandomFlashCards(size: Int): List<FlashCard>
 }
