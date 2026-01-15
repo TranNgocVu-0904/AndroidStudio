@@ -2,13 +2,14 @@ package com.example.menuannam
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
-import androidx.room.Update
+import androidx.room.RawQuery
+import androidx.sqlite.db.SupportSQLiteQuery
+import kotlinx.serialization.Serializable
 
 // ======================= Entity =======================
 
@@ -21,6 +22,8 @@ import androidx.room.Update
         )
     ]
 )
+
+@Serializable
 data class FlashCard(
     @PrimaryKey(autoGenerate = true) val uid: Int,
     @ColumnInfo(name = "english_card") val englishCard: String?,
@@ -32,6 +35,10 @@ data class FlashCard(
 @Dao
 interface FlashCardDao {
 
+    @RawQuery
+    fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
+
+
     // ----------------------- Common / All -----------------------
 
     @Query("SELECT * FROM FlashCards")
@@ -39,15 +46,6 @@ interface FlashCardDao {
 
     @Insert
     suspend fun insertAll(vararg flashCard: FlashCard)
-
-    /*
-    @Update
-    suspend fun update(flashCard: FlashCard)
-
-    @Delete
-    suspend fun delete(flashCard: FlashCard)
-    */
-
 
 
     // ----------------------- Based on ID -----------------------
@@ -69,7 +67,7 @@ interface FlashCardDao {
     )
     suspend fun findByCards(english: String, vietnamese: String): FlashCard
 
-    // Tìm theo cặp từ (so sánh =, không LIKE)
+    // Search by pairs of words (compare =, do not LIKE)
     @Query(
         "SELECT * FROM FlashCards " +
                 "WHERE english_card = :english AND vietnamese_card = :vietnamese " +
@@ -77,7 +75,7 @@ interface FlashCardDao {
     )
     suspend fun getFlashCardByPair(english: String, vietnamese: String): FlashCard?
 
-    // Xóa theo cặp từ
+    // Delete by word pair
     @Query(
         "DELETE FROM FlashCards " +
                 "WHERE english_card = :english AND vietnamese_card = :vietnamese"
@@ -88,6 +86,7 @@ interface FlashCardDao {
             "WHERE english_card LIKE '%' || :english || '%' " +
             "AND vietnamese_card LIKE '%' || :vietnamese || '%' "
     )
+
     suspend fun searchFlashCardByPair(english: String, vietnamese: String): List<FlashCard>
 
     @Query("UPDATE FlashCards " +
@@ -99,4 +98,15 @@ interface FlashCardDao {
 
     @Query("SELECT * FROM FlashCards ORDER BY RANDOM() LIMIT :size")
     suspend fun getRandomFlashCards(size: Int): List<FlashCard>
+
+    // Retrieves flashcards filtering by English and Vietnamese text, with toggleable exact/substring matching for each field.
+    @Query(
+        "SELECT * FROM FlashCards WHERE " +
+                "(CASE WHEN :exactEn THEN english_card LIKE :en  " +
+                "WHEN NOT :exactEn  THEN english_card LIKE '%' || :en || '%' END) " +
+                "AND " +
+                "(CASE WHEN :exactVn THEN vietnamese_card LIKE :vn " +
+                "WHEN NOT :exactVn THEN vietnamese_card LIKE '%' || :vn || '%' END)"
+    )
+    suspend fun getFilteredFlashCards(en: String, exactEn: Boolean, vn: String, exactVn: Boolean): List<FlashCard>
 }

@@ -9,6 +9,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 
+
 @Composable
 fun BottomBarComponent(
     message: String
@@ -19,7 +20,7 @@ fun BottomBarComponent(
                 .fillMaxWidth()
                 .semantics { contentDescription = "Message" },
             textAlign = TextAlign.Center,
-            text = message
+            text = message,
         )
     }
 }

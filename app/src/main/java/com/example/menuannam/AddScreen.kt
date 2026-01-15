@@ -30,150 +30,105 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddScreen(changeMessage: (String) -> Unit = {}, insertFlashCard: suspend (FlashCard) -> Unit) {
-
+fun AddScreen(
+    // Callback to update the bottom message bar
+    changeMessage: (String) -> Unit = {},
+    // Suspend function to insert data into Room Database
+    insertFlashCard: suspend (FlashCard) -> Unit
+) {
+    // UI State for Input Fields (rememberSaveable keeps text during screen rotation)
     var english by rememberSaveable { mutableStateOf("") }
     var vietnamese by rememberSaveable { mutableStateOf("") }
 
+    // Local list to display cards added during this session
     val word = remember { mutableStateListOf<Pair<String, String>>() }
+
+    // Scope required to launch suspend functions (database operations)
     val scope = rememberCoroutineScope()
 
+    // Initial Setup: Update message when screen loads
     LaunchedEffect(Unit) {
-        changeMessage("Đây là bottom bar của add screen")
+        changeMessage("Please enter flashcard information.")
     }
 
+    // Main Layout
     Column(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
-            horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    )
+    {
+        // --- INPUT FIELDS ---
+        TextField(
+            value = english,
+            onValueChange = { english = it },
+            label = { Text(stringResource(R.string.English_Label)) },
+            placeholder = { Text("Enter text") },
+            modifier = Modifier.semantics{contentDescription= "English Input"}.fillMaxWidth()
+        )
+
+        TextField(
+            value = vietnamese,
+            onValueChange = { vietnamese = it },
+            label = { Text(stringResource(R.string.Vietnamese_Label)) },
+            placeholder = { Text("Enter content") },
+            modifier = Modifier.semantics { contentDescription = "Vietnamese Input" }.fillMaxWidth()
+        )
+
+        // --- ACTION BUTTONS ---
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
         )
         {
-            TextField(
-                value = english,
-                onValueChange = { english = it },
-                label = { Text(stringResource(R.string.English_Label)) },
-                placeholder = { Text("Enter text") },
-                modifier = Modifier.semantics{contentDescription= "English Input"}.fillMaxWidth()
-            )
+            Button(
+                onClick = {
+                    scope.launch {
+                        try {
+                            // Database Insert Operation
+                            // Note: We use ID = 0 because Room usually auto-generates the ID
+                            insertFlashCard(
+                                FlashCard(
+                                    0,
+                                    englishCard = english,
+                                    vietnameseCard = vietnamese
+                                )
+                            )
 
-            TextField(
-                value = vietnamese,
-                onValueChange = { vietnamese = it },
-                label = { Text(stringResource(R.string.Vietnamese_Label)) },
-                placeholder = { Text("Nhập nội dung") },
-                modifier = Modifier.semantics { contentDescription = "Vietnamese Input" }.fillMaxWidth()
-            )
-
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
-            )
-            {
-                Button(
-                    onClick =
-                        {
-                            scope.launch {
-                                try {
-                                    insertFlashCard(
-                                        FlashCard(
-                                            0,
-                                            englishCard = english,
-                                            vietnameseCard = vietnamese
-                                        )
-                                    )
-                                    if (vietnamese.isNotBlank() && english.isNotBlank()) {
-                                        word.add(english to vietnamese) //Make a pair of words
-                                        english = "" // Clear the text field
-                                        vietnamese = "" // Clear the text field
-                                    }
-                                    // Only show up the "Save" button when fulfilled En and Viet
-                                    changeMessage("Flash card successfully added to your database.")
-                                }
-                                catch (e: SQLiteConstraintException){
-                                    // changeMessage("Flash Cards are duplicated")
-                                    changeMessage("Flash card already exists in your database.")
-                                }
-                                catch (e: Exception){
-                                    changeMessage("Unexpected Error")
-                                }
+                            // Post-Insert UI Updates
+                            // Only update UI list if inputs were not blank
+                            if (vietnamese.isNotBlank() && english.isNotBlank()) {
+                                word.add(english to vietnamese) // Add to temporary display list
+                                english = ""    // Clear Input Field
+                                vietnamese = "" // Clear Input Field
                             }
-                        },
-                    // enabled = vietnamese.isNotBlank() && english.isNotBlank(),
-                    enabled = true,
 
-                    modifier = Modifier.semantics {
-                        contentDescription = "Save"
+                            // Success Feedback
+                            changeMessage("Flash card successfully added to your database.")
+                        }
+                        catch (e: SQLiteConstraintException){
+                            // Error Handling: Duplicate Entry
+                            // This catches unique constraint violations (e.g., card already exists)
+                            changeMessage("Flash card already exists in your database.")
+                        }
+                        catch (e: Exception){
+                            // Error Handling: Generic
+                            changeMessage("Unexpected Error")
+                        }
                     }
-                )
-                { Text("Save") }
-            }
-
-            Column {
-                word.forEach { (english, vietnamese) ->
-                    Text("English: $english - Vietnamese: $vietnamese")
-                }
-            }
-        }
-    }
-
-/*
-@Composable
-fun AddScreen(onBack: () -> Unit) {
-
-    var enWord = ""
-
-    var vnWord = ""
-
-    //var enWord by remember { mutableStateOf("") }
-
-    //var vnWord by remember { mutableStateOf("") }
-
-    //var enWord by rememberSaveable { mutableStateOf("") }
-
-    //var vnWord by rememberSaveable { mutableStateOf("") }
-
-    Column() {
-
-        TextField(
-
-            value = enWord,
-
-            onValueChange = { enWord = it },
-
-            modifier = Modifier.semantics{contentDescription = "English String"},
-
-            label = { Text("en") }
-
-        )
-
-        TextField(
-
-            value = vnWord,
-
-            onValueChange = { vnWord = it },
-
-            label = { Text("vn") }
-
-        )
-
-        Button(onClick = {
-
-            Log.d(
-
-                "TEST", "Adding a card with words: "
-
-                        + enWord + " and " + vnWord
-
+                },
+                enabled = true,
+                modifier = Modifier.semantics { contentDescription = "Save" }
             )
-
-        }) {
-
-            Text("Add")
-
+            { Text("Save") }
         }
-
+        // --- HISTORY DISPLAY ---
+        // Shows a list of words added in the current session
+        Column {
+            word.forEach { (english, vietnamese) ->
+                Text("English: $english - Vietnamese: $vietnamese")
+            }
+        }
     }
-
 }
- */

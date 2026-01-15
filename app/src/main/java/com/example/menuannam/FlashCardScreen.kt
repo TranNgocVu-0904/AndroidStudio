@@ -1,19 +1,15 @@
 package com.example.menuannam
 
-import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,7 +19,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,14 +36,17 @@ fun FlashCardList(
     flashCards: List<FlashCard>,
     onDelete: (FlashCard) -> Unit
 ) {
-
+    // Scrollable list container
     LazyColumn(
         modifier = Modifier.padding(16.dp)
     ) {
+        // Iterate through each flashcard in the list
         items(
             items = flashCards,
-            key = { flashCard -> flashCard.uid }
+            key = { flashCard -> flashCard.uid } // Unique key for optimization
         ) { flashCard ->
+
+            // --- Card Container ---
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -56,9 +54,11 @@ fun FlashCardList(
                     .padding(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
+                // --- Content Section (Clickable) ---
                 Row(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(1f) // Takes up remaining space
                         .clickable { selectedItem(flashCard) },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -66,20 +66,24 @@ fun FlashCardList(
                         text = flashCard.englishCard.orEmpty(),
                         modifier = Modifier.padding(6.dp)
                     )
+
                     Text(
                         text = " = ",
                         modifier = Modifier.padding(6.dp)
                     )
+
                     Text(
                         text = flashCard.vietnameseCard.orEmpty(),
                         modifier = Modifier.padding(6.dp)
                     )
                 }
 
+                // --- Action Buttons (Edit / Delete) ---
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Edit Button
                     Text(
                         text = "Edit",
                         fontWeight = FontWeight.Bold,
@@ -90,18 +94,16 @@ fun FlashCardList(
                         textDecoration = TextDecoration.Underline
                     )
 
+                    // Delete Button
                     Text(
                         text = "Delete",
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier
                             .clickable { onDelete(flashCard) }
-                            .padding(4.dp), // cho dễ bấm hơn
-                        // có thể thêm style cho giống link hoặc nút
+                            .padding(4.dp),
                         color = MaterialTheme.colorScheme.error,
                         textDecoration = TextDecoration.Underline
                     )
-
-
                 }
             }
         }
@@ -109,57 +111,77 @@ fun FlashCardList(
 }
 
 @Composable
-fun SearchScreen(
+fun FlashCardScreen(
     changeMessage: (String) -> Unit = {},
-    getAllFlashCards: suspend () -> List<FlashCard>,
     selectedItem: (FlashCard) -> Unit,
-    searchFlashCardByPair: suspend (String, String) -> List<FlashCard>,
     deleteFlashCardByPair: suspend (FlashCard) -> Unit,
-    editItem: (FlashCard) -> Unit
+    getFilteredFlashCards: suspend (String, Boolean, String, Boolean) -> List<FlashCard>,
+    editItem: (FlashCard) -> Unit,
+    english: String,
+    vietnamese: String,
+    isExactEnglish: Boolean,
+    isExactVietnamese: Boolean,
 ) {
+    // State to hold the list of cards
     var flashCards: List<FlashCard> by remember { mutableStateOf(emptyList()) }
-
-    var vnText by rememberSaveable { mutableStateOf("") }
-    var enText by rememberSaveable { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
 
+    // --- Helper Function: Fetch and Update List ---
     val updateCardList: suspend () -> Unit = {
-        flashCards = searchFlashCardByPair(enText, vnText)
+        // Query the database
+        val result = getFilteredFlashCards(english, isExactEnglish, vietnamese, isExactVietnamese)
+
+        // Update state
+        flashCards = result
+
+        // Update bottom status message
+        if (result.isEmpty()){
+            changeMessage("No cards were found. The database is empty!")
+        }
+        else {
+            changeMessage("${result.size} available word card(s)")
+        }
     }
 
-    // Load list khi vào màn hình
-    LaunchedEffect(Unit) {
-        flashCards = getAllFlashCards()
+    // --- Side Effect: Load Data ---
+    // Runs when screen loads OR when search inputs (english/vietnamese) change
+    LaunchedEffect(english, vietnamese) {
+        updateCardList()
     }
 
-    changeMessage("Đây là bottom bar của search screen")
-
+    // --- Main UI Layout ---
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        FlashCardList(
-            flashCards = flashCards,
-            selectedItem =  selectedItem,
-            editItem = editItem,
-            onDelete = { card ->
-                scope.launch {
-                    deleteFlashCardByPair(card)
-                    updateCardList()
-                }
-            }
-        )
-        Button(
-            onClick = {
-                Log.d("My test", "click Button ")
-            }
-        ) {
-            Text("About")
+
+        // CASE 1: List is Empty -> Show Error Message
+        if (flashCards.isEmpty()) {
+            Text(
+                text = "No cards were found. Please try again!",
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(20.dp)
+            )
         }
-        Spacer(
-            modifier = Modifier.size(16.dp)
-        )
+
+        // CASE 2: List has Data -> Show the List
+        else {
+            FlashCardList(
+                flashCards = flashCards,
+                selectedItem = selectedItem,
+                editItem = editItem,
+                onDelete = { card ->
+                    // Handle Delete logic
+                    scope.launch {
+                        deleteFlashCardByPair(card)
+                        updateCardList() // Refresh list after deleting
+                    }
+                }
+            )
+        }
     }
 }

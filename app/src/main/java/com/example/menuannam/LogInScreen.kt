@@ -1,6 +1,5 @@
 package com.example.menuannam
 
-import android.database.sqlite.SQLiteConstraintException
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,11 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -28,45 +23,44 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
-
 @Composable
-fun LogInScreen(changeMessage: (String) -> Unit = {}, networkService: NetworkService) {
+fun LogInScreen(
+    // State is hoisted: 'email' comes from the parent composable
+    email: String,
+    changeMessage: (String) -> Unit = {},
+    networkService: NetworkService,
 
-    var email by remember { mutableStateOf("") }
-    var token by remember { mutableStateOf("") }
+    // Callback to navigate to the next screen (Token Screen) upon success
+    onToken: () -> Unit,
 
-
-
+    // Callback to update the email state in the parent
+    onEmailChange: (String) -> Unit
+) {
+    // Coroutine scope for handling button clicks (Side Effects)
     val scope = rememberCoroutineScope()
 
-
+    // Initial Setup: Set the bottom bar message when screen loads
     LaunchedEffect(Unit) {
-        changeMessage("Đây là bottom bar của log in screen")
+        changeMessage("Please, introduce your email for login.")
     }
 
+    // Main Layout
     Column(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     )
     {
-        TextField(
-            value = token,
-            onValueChange = {},
-            label = { Text("Token") },
-            placeholder = { Text("Enter text") },
-            modifier = Modifier.semantics{contentDescription= "Token Input"}.fillMaxWidth(),
-            readOnly = true
-        )
-
+        // --- INPUT SECTION ---
         TextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = onEmailChange, // Delegates state update to parent
             label = { Text("Email") },
             placeholder = { Text("Enter your email") },
             modifier = Modifier.semantics { contentDescription = "Email Input" }.fillMaxWidth()
         )
 
+        // --- ACTION BUTTON SECTION ---
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -74,39 +68,37 @@ fun LogInScreen(changeMessage: (String) -> Unit = {}, networkService: NetworkSer
         )
         {
             Button(
-                onClick =
-                    {
-                        scope.launch {
-                            withContext(Dispatchers.IO){
-                            try {
-                                val result = networkService.generateToken(email = UserCredential(email))
-
-                                //writeToken(context, result.token)
-                                token = result.token
-
-                                // Only show up the "Save" button when fulfilled En and Viet
-                                changeMessage("The token has been received successfully")
-
+                onClick = {
+                    scope.launch {
+                        try {
+                            // Network Request
+                            // Switch to IO Dispatcher for network operations to avoid freezing UI
+                            val result = withContext(Dispatchers.IO) {
+                                networkService.generateToken(email = UserCredential(email))
                             }
-                            catch (e: SQLiteConstraintException){
-                                // changeMessage("Flash Cards are duplicated")
-                                changeMessage("Flash card already exists in your database.")
+                            // Handle Response
+                            if (result.code == 200) {
+                                changeMessage("Tokens have been sent")
+                                onToken() // Navigate to next screen
+                            } else {
+                                changeMessage("Token sending failed: ${result.message}")
                             }
-                            catch (e: Exception){
-                                changeMessage("Unexpected Error")
-                            }}
                         }
-                    },
-                // enabled = vietnamese.isNotBlank() && english.isNotBlank(),
+                        // Error Handling
+                        catch (e: retrofit2.HttpException) {
+                            changeMessage("HTTP Error: ${e.code()}")
+                        }
+                        catch (e: Exception){
+                            changeMessage("Unexpected Error: ${e.message}")
+                        }
+                    }
+                },
                 enabled = true,
-
                 modifier = Modifier.semantics {
                     contentDescription = "Enter"
                 }
             )
             { Text("Enter") }
         }
-
-
     }
 }
