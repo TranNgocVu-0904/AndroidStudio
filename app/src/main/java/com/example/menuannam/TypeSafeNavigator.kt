@@ -11,7 +11,6 @@ import kotlinx.serialization.Serializable
  */
 
 // --- Simple Routes (No Arguments) ---
-
 @Serializable
 object MainRoute    // Home Screen
 
@@ -26,7 +25,6 @@ object SearchRoute  // Search Input Screen
 
 @Serializable
 object LogInRoute   // Email Entry Screen
-
 
 // --- Routes with Arguments (Passing Data) ---
 

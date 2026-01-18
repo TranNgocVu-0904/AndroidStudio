@@ -112,11 +112,13 @@ fun EditCardScreen(
 
         // This effect checks if the audio file exists whenever the vietnamese text changes
         LaunchedEffect(fileName) {
-            if (file.exists()){
-                audioText = fileName
-            }
-            else{
-                audioText = ""
+            audioText = if (
+                file.exists()
+                )
+            {
+                fileName
+            } else{
+                ""
             }
         }
         // Input Field: English

@@ -14,7 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 fun BottomBarComponent(
     message: String
 ) {
-    BottomAppBar(){
+    BottomAppBar{
         Text(
             modifier = Modifier
                 .fillMaxWidth()
