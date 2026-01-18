@@ -32,7 +32,9 @@ import java.io.File
 fun StudyScreen(
     changeMessage: (String) -> Unit = {},
     getRandomLesson: suspend (Int) -> List<FlashCard>,
-    networkService: NetworkService
+    networkService: NetworkService,
+    email: String,
+    token: String
 ) {
     /*
      ==========================================
@@ -52,10 +54,6 @@ fun StudyScreen(
     // Tracks if the audio file exists for the current word
     var audioFile by remember { mutableStateOf(false) }
 
-    // User Credentials logic
-    var email by remember { mutableStateOf("") }
-    var token by remember { mutableStateOf("") }
-
     // Enable audio features only if user is logged in
     val audioUse = email.isNotBlank() && token.isNotBlank()
 
@@ -70,11 +68,6 @@ fun StudyScreen(
     */
     LaunchedEffect(Unit) {
         try {
-            // A. Load Credentials from DataStore
-            val prefs = context.dataStore.data.first()
-            email = prefs[EMAIL] ?: ""
-            token = prefs[TOKEN] ?: ""
-
             if (email.isBlank() || token.isBlank()) {
                 changeMessage("Missing email/token. Please login first.")
             }

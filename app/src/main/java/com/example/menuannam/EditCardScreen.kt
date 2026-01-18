@@ -44,7 +44,9 @@ fun EditCardScreen(
     getFlashCardByPair: suspend (String, String) -> FlashCard?,
     updateFlashCardByPair: suspend (String, String, String, String) -> Unit,
     changeMessage: (String) -> Unit,
-    networkService: NetworkService
+    networkService: NetworkService,
+    email : String,
+    token : String
 ) {
     // State to hold the current FlashCard object fetched from DB
     var card by remember { mutableStateOf<FlashCard?>(null) }
@@ -56,30 +58,19 @@ fun EditCardScreen(
     // State to track audio status: contains filename if exists, empty string if not
     var audioText by remember { mutableStateOf("") }
 
-    // User credentials for API calls
-    var email by remember { mutableStateOf("") }
-    var token by remember { mutableStateOf("") }
-
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
 
-    // Load User Credentials (Email/Token) from DataStore
-    LaunchedEffect(Unit) {
-        try {
-            // Check email or token when first entering screen
-            val prefs = context.dataStore.data.first()
-            email = prefs[EMAIL] ?: ""
-            token = prefs[TOKEN] ?: ""
+    val isLoggedIn = email.isNotBlank() && token.isNotBlank()
 
-        } catch (e: Exception) {
-            changeMessage("Unexpected error while generating lesson.")
-        }
-    }
 
     // Set initial instructional message
     LaunchedEffect(Unit) {
         changeMessage("Please edit the flashcard")
+        if (!isLoggedIn) {
+            changeMessage("Login for audio features.")
+        }
     }
 
     // Load the specific FlashCard from Database using the passed arguments
@@ -118,6 +109,8 @@ fun EditCardScreen(
             This runs safely whenever 'fileName' changes (e.g., user types in Vietnamese field).
             It updates 'audioText' state based on whether the file physically exists on disk.
         */
+
+        // This effect checks if the audio file exists whenever the vietnamese text changes
         LaunchedEffect(fileName) {
             if (file.exists()){
                 audioText = fileName

@@ -210,7 +210,9 @@ fun AppNavigation(
                 StudyScreen(
                     changeMessage = changeMessage,
                     getRandomLesson = getRandomLesson,
-                    networkService = networkService
+                    networkService = networkService,
+                    email = email,
+                    token = token
                 )
             }
 
@@ -295,6 +297,8 @@ fun AppNavigation(
                     networkService = networkService,
                     englishOld = args.englishOld,
                     vietnameseOld = args.vietnameseOld,
+                    email = email,
+                    token = token
                 )
             }
 
