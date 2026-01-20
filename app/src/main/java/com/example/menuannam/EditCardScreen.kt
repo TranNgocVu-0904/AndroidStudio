@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -29,7 +28,6 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -130,7 +128,6 @@ fun EditCardScreen(
             placeholder = { Text("Enter text") },
             modifier = Modifier.semantics { contentDescription = "English Input" }.fillMaxWidth()
         )
-
         // Input Field: Vietnamese
         TextField(
             value = vietnameseText,
@@ -140,7 +137,6 @@ fun EditCardScreen(
             placeholder = { Text("Nhập nội dung") },
             modifier = Modifier.semantics { contentDescription = "Vietnamese Input" }.fillMaxWidth()
         )
-
         // Read-only Field: Shows audio filename
         TextField(
             value = audioText,
@@ -149,7 +145,6 @@ fun EditCardScreen(
             placeholder = { Text("Audio file") },
             modifier = Modifier.semantics { contentDescription = "Audio Input" }.fillMaxWidth()
         )
-
         // UPDATE BUTTON: Saves changes to Database
         Button(
             onClick = {
@@ -195,7 +190,6 @@ fun EditCardScreen(
             ) {
                 Text("Clean Audio")
             }
-
             // PLAY BUTTON: Plays audio using ExoPlayer
             Button(
                 onClick = {

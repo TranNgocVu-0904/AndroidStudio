@@ -15,7 +15,6 @@ interface NetworkService {
     */
     @PUT
     suspend fun generateToken(
-        // TODO: Check your AWS Region!
         // If your Lambda is in Sydney, change "ap-southeast-1" to "ap-southeast-2"
         @Url url: String = "https://egsbwqh7kildllpkijk6nt4soq0wlgpe.lambda-url.ap-southeast-1.on.aws/",
 

@@ -38,7 +38,6 @@ interface FlashCardDao {
     @RawQuery
     fun checkpoint(supportSQLiteQuery: SupportSQLiteQuery): Int
 
-
     // ----------------------- Common / All -----------------------
 
     @Query("SELECT * FROM FlashCards")
@@ -47,7 +46,6 @@ interface FlashCardDao {
     @Insert
     suspend fun insertAll(vararg flashCard: FlashCard)
 
-
     // ----------------------- Based on ID -----------------------
 
     @Query("SELECT * FROM FlashCards WHERE uid IN (:flashCardIds)")
@@ -55,7 +53,6 @@ interface FlashCardDao {
 
     @Query("SELECT * FROM FlashCards WHERE uid = :id LIMIT 1")
     suspend fun getFlashCardById(id: Int): FlashCard?
-
 
     // ----------------------- Based on pair (EN/VN) -----------------------
 

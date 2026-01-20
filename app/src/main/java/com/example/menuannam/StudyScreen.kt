@@ -22,7 +22,6 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -41,7 +40,6 @@ fun StudyScreen(
      1. STATE MANAGEMENT
      ==========================================
     */
-
     // Holds the list of cards for the current study session
     var lessonCards by remember { mutableStateOf<List<FlashCard>>(emptyList()) }
 
@@ -59,8 +57,6 @@ fun StudyScreen(
 
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
-
     /*
      ==========================================
      2. INITIALIZATION (On Screen Load)
@@ -71,7 +67,6 @@ fun StudyScreen(
             if (email.isBlank() || token.isBlank()) {
                 changeMessage("Missing email/token. Please login first.")
             }
-
             // B. Fetch Random Lesson (Limit 3 cards)
             val cards = getRandomLesson(3)
             lessonCards = cards
@@ -87,13 +82,11 @@ fun StudyScreen(
             changeMessage("Unexpected error while generating lesson.")
         }
     }
-
     /*
      ==========================================
      3. MAIN UI LAYOUT
      ==========================================
     */
-
     Column(
         modifier = Modifier.padding(12.dp).fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -142,14 +135,11 @@ fun StudyScreen(
                     Text("Next", style = MaterialTheme.typography.titleLarge)
                 }
             }
-
             /*
              ==========================================
              4. AUDIO LOGIC
              ==========================================
             */
-
-
             val vietnameseWord = currentCard.vietnameseCard.orEmpty()
             val filename = audioFilenameForWord(vietnameseWord)
             val file = File(context.filesDir, filename)
@@ -158,7 +148,6 @@ fun StudyScreen(
             LaunchedEffect(filename) {
                 audioFile = file.exists()
             }
-
             // CASE A: File does NOT exist -> Show Generate Button
             if (!audioFile) {
                 Button(
@@ -173,7 +162,6 @@ fun StudyScreen(
                                     networkService.generateAudio(
                                         vocabulary = vocabulary)
                                 }
-
                                 // Handle Response
                                 if (audio.code == 200) {
                                     val bytes = decodeBase64(audio)
@@ -202,7 +190,6 @@ fun StudyScreen(
                     Text("Generate", style = MaterialTheme.typography.titleLarge)
                 }
             }
-
             // CASE B: File EXISTS -> Show Play Button
             else {
                 Button(
@@ -243,7 +230,6 @@ fun StudyScreen(
                                 }
                             }
                         })
-
                         // Set the media item to the player and prepare
                         player.setMediaItem(mediaItem)
 

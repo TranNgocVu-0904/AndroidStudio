@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
  These classes/objects are used by the Navigation library to define
  screens and pass arguments in a type-safe way.
  */
-
 // --- Simple Routes (No Arguments) ---
 @Serializable
 object MainRoute    // Home Screen
@@ -52,14 +51,12 @@ data class EditCardRoute(
 data class TokenRoute(
     val email: String
 )
-
  /*
  =================================================================
  2. DATA MODELS (API Request/Response)
  =================================================================
  These data classes are used for parsing JSON to/from the Network Service.
  */
-
 @Serializable
 data class UserCredential(
     val email: String

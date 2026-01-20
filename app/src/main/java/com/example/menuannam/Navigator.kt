@@ -311,16 +311,12 @@ fun AppNavigation(
                     setTitle("Log In Screen")
                 }
 
-                // Pre-fill email if already saved
-                LaunchedEffect(email) {
-                    emailInput = email
-                }
-
                 LogInScreen(
                     changeMessage = changeMessage,
                     email = emailInput,
-                    onEmailChange = { emailInput = it },
-                    onToken = { toToken(emailInput) },
+                    onToken = { emailFromLogIn ->
+                        toToken(emailFromLogIn)
+                    },
                     networkService = networkService,
                 )
             }
@@ -337,7 +333,7 @@ fun AppNavigation(
                 TokenScreen(
                     changeMessage = changeMessage,
                     onMain = toMain,
-                    email = args.email,
+                    email = args.email
                 )
             }
         }

@@ -24,9 +24,7 @@ val EMAIL = stringPreferencesKey("email")
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         enableEdgeToEdge()
-
         setContent {
             MenuAnNamTheme{
                 val navigation = rememberNavController()

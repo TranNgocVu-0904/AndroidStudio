@@ -12,7 +12,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
@@ -31,13 +35,20 @@ fun LogInScreen(
     networkService: NetworkService,
 
     // Callback to navigate to the next screen (Token Screen) upon success
-    onToken: () -> Unit,
+    onToken: (String) -> Unit,
 
-    // Callback to update the email state in the parent
-    onEmailChange: (String) -> Unit
 ) {
+    var emailInput by rememberSaveable { mutableStateOf(email) }
+
     // Coroutine scope for handling button clicks (Side Effects)
     val scope = rememberCoroutineScope()
+
+    // Cập nhật lại nếu initialEmail từ cha thay đổi (ví dụ load chậm từ DataStore)
+    LaunchedEffect(email) {
+        if (email.isNotBlank()){
+            emailInput = email
+        }
+    }
 
     // Initial Setup: Set the bottom bar message when screen loads
     LaunchedEffect(Unit) {
@@ -46,23 +57,29 @@ fun LogInScreen(
 
     // Main Layout
     Column(
-        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     )
     {
         // --- INPUT SECTION ---
         TextField(
-            value = email,
-            onValueChange = onEmailChange, // Delegates state update to parent
+            value = emailInput, // Dùng biến nội bộ
+            onValueChange = { emailInput = it }, // Tự cập nhật nội bộ
             label = { Text("Email") },
             placeholder = { Text("Enter your email") },
-            modifier = Modifier.semantics { contentDescription = "Email Input" }.fillMaxWidth()
+            modifier = Modifier
+                .semantics { contentDescription = "Email Input" }
+                .fillMaxWidth()
         )
 
         // --- ACTION BUTTON SECTION ---
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally)
         )
@@ -79,7 +96,7 @@ fun LogInScreen(
                             // Handle Response
                             if (result.code == 200) {
                                 changeMessage("Tokens have been sent")
-                                onToken() // Navigate to next screen
+                                onToken(emailInput)
                             } else {
                                 changeMessage("Token sending failed: ${result.message}")
                             }

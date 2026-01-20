@@ -45,7 +45,6 @@ fun FlashCardList(
             items = flashCards,
             key = { flashCard -> flashCard.uid } // Unique key for optimization
         ) { flashCard ->
-
             // --- Card Container ---
             Row(
                 modifier = Modifier
@@ -54,7 +53,6 @@ fun FlashCardList(
                     .padding(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
                 // --- Content Section (Clickable) ---
                 Row(
                     modifier = Modifier
@@ -77,7 +75,6 @@ fun FlashCardList(
                         modifier = Modifier.padding(6.dp)
                     )
                 }
-
                 // --- Action Buttons (Edit / Delete) ---
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -93,7 +90,6 @@ fun FlashCardList(
                         color = MaterialTheme.colorScheme.primary,
                         textDecoration = TextDecoration.Underline
                     )
-
                     // Delete Button
                     Text(
                         text = "Delete",

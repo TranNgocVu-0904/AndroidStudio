@@ -66,15 +66,13 @@ fun AddScreen(
             placeholder = { Text("Enter text") },
             modifier = Modifier.semantics{contentDescription= "English Input"}.fillMaxWidth()
         )
-
         TextField(
             value = vietnamese,
             onValueChange = { vietnamese = it },
             label = { Text(stringResource(R.string.Vietnamese_Label)) },
-            placeholder = { Text("Enter content") },
+            placeholder = { Text("Nhập nội dung") },
             modifier = Modifier.semantics { contentDescription = "Vietnamese Input" }.fillMaxWidth()
         )
-
         // --- ACTION BUTTONS ---
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
@@ -95,7 +93,6 @@ fun AddScreen(
                                     vietnameseCard = vietnamese
                                 )
                             )
-
                             // Post-Insert UI Updates
                             // Only update UI list if inputs were not blank
                             if (vietnamese.isNotBlank() && english.isNotBlank()) {
@@ -103,7 +100,6 @@ fun AddScreen(
                                 english = ""    // Clear Input Field
                                 vietnamese = "" // Clear Input Field
                             }
-
                             // Success Feedback
                             changeMessage("Flash card successfully added to your database.")
                         }
